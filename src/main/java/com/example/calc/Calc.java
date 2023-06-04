@@ -3,7 +3,9 @@ package com.example.calc;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -68,7 +70,20 @@ public class Calc extends Application {
     }
 
     private Button createButton(final String s) {
-        Button button = new Button();
+        Button button = makeStandardButton(s);
+
+        if (s.matches("[0-9]")) {
+            makeNumericButton(s, button);
+        } else {
+            final ObjectProperty<Op> triggerOp = determineOperand(s);
+            if (triggerOp.get() != Op.NOOP) {
+                makeOperandButton(button, triggerOp);
+            } else if ("c".equals(s)) {
+                makeClearButton(button);
+            } else if ("=".equals(s)) {
+                makeEqualsButton(button);
+            }
+        }
         return button;
     }
 
@@ -98,6 +113,60 @@ public class Calc extends Application {
         screen.setEditable(false);
         screen.textProperty().bind(Bindings.format("%.0f", value));
         return screen;
+    }
+
+    private void makeOperandButton(Button button, final ObjectProperty<Op> triggerOp) {
+        button.setStyle("-fx-base: lightgray;");
+        button.setOnAction(actionEvent -> curOp = triggerOp.get());
+    }
+
+    private Button makeStandardButton(String s) {
+        Button button = new Button(s);
+        button.setStyle("-fx-base: beige;");
+        accelerators.put(s, button);
+        button.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        return button;
+    }
+
+    private void makeNumericButton(final String s, Button button) {
+        button.setOnAction(actionEvent -> {
+            if (curOp == Op.NOOP) {
+                value.set(value.get() * 10 + Integer.parseInt(s));
+            } else {
+                stackValue.set(value.get());
+                value.set(Integer.parseInt(s));
+                stackOp = curOp;
+                curOp = Op.NOOP;
+            }
+        });
+    }
+
+    private void makeClearButton(Button button) {
+        button.setStyle("-fx-base: mistyrose;");
+        button.setOnAction(actionEvent -> value.set(0));
+    }
+
+    private void makeEqualsButton(Button button) {
+        button.setStyle("-fx-base: ghostwhite;");
+        button.setOnAction(actionEvent -> {
+            switch (stackOp) {
+                case ADD -> value.set(stackValue.get() + value.get());
+                case SUBTRACT -> value.set(stackValue.get() - value.get());
+                case MULTIPLY -> value.set(stackValue.get() * value.get());
+                case DIVIDE -> value.set(stackValue.get() / value.get());
+            }
+        });
+    }
+
+    private ObjectProperty<Op> determineOperand(String s) {
+        final ObjectProperty<Op> triggerOp = new SimpleObjectProperty<>(Op.NOOP);
+        switch (s) {
+            case "+" -> triggerOp.set(Op.ADD);
+            case "-" -> triggerOp.set(Op.SUBTRACT);
+            case "*" -> triggerOp.set(Op.MULTIPLY);
+            case "/" -> triggerOp.set(Op.DIVIDE);
+        }
+        return triggerOp;
     }
 
 
