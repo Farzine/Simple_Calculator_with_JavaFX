@@ -78,15 +78,6 @@ public class Calc extends Application {
         return buttons;
     }
 
-    private VBox createLayout(TextField screen,TilePane buttons){
-        final VBox layout = new VBox(25);
-        layout.setAlignment(Pos.CENTER);
-        layout.setStyle("-fx-background-color: darkcyan; -fx-padding: 15; -fx-font-size: 30");
-        layout.getChildren().setAll(screen, buttons);
-        handleAccelerators(layout);
-        screen.prefWidthProperty().bind(buttons.widthProperty());
-        return layout;
-    }
 
     private Button createButton(final String s) {
         Button button = makeStandardButton(s);
@@ -104,23 +95,6 @@ public class Calc extends Application {
             }
         }
         return button;
-    }
-
-
-
-    private void handleAccelerators(VBox layout) {
-        layout.addEventFilter(KeyEvent.KEY_PRESSED, keyEvent -> {
-            Button activated = accelerators.get(keyEvent.getText());
-            if (activated != null) {
-                activated.fire();
-            }
-        });
-    }
-
-
-    private void makeOperandButton(Button button, final ObjectProperty<Op> triggerOp) {
-        button.setStyle("-fx-base: lightgray;");
-        button.setOnAction(actionEvent -> curOp = triggerOp.get());
     }
 
     private Button makeStandardButton(String s) {
@@ -144,6 +118,11 @@ public class Calc extends Application {
         });
     }
 
+    private void makeOperandButton(Button button, final ObjectProperty<Op> triggerOp) {
+        button.setStyle("-fx-base: lightgray;");
+        button.setOnAction(actionEvent -> curOp = triggerOp.get());
+    }
+
     private void makeClearButton(Button button) {
         button.setStyle("-fx-base: mistyrose;");
         button.setOnAction(actionEvent -> value.set(0));
@@ -157,6 +136,25 @@ public class Calc extends Application {
                 case SUBTRACT -> value.set(stackValue.get() - value.get());
                 case MULTIPLY -> value.set(stackValue.get() * value.get());
                 case DIVIDE -> value.set(stackValue.get() / value.get());
+            }
+        });
+    }
+
+    private VBox createLayout(TextField screen,TilePane buttons){
+        final VBox layout = new VBox(25);
+        layout.setAlignment(Pos.CENTER);
+        layout.setStyle("-fx-background-color: darkcyan; -fx-padding: 15; -fx-font-size: 30");
+        layout.getChildren().setAll(screen, buttons);
+        handleAccelerators(layout);
+        screen.prefWidthProperty().bind(buttons.widthProperty());
+        return layout;
+    }
+
+    private void handleAccelerators(VBox layout) {
+        layout.addEventFilter(KeyEvent.KEY_PRESSED, keyEvent -> {
+            Button activated = accelerators.get(keyEvent.getText());
+            if (activated != null) {
+                activated.fire();
             }
         });
     }
