@@ -48,18 +48,27 @@ public class Calc extends Application {
         final TextField screen = createScreen();
         final TilePane buttons = createButtons();
 
-        stage.setTitle("Calc");
-        stage.initStyle(StageStyle.UTILITY);
+        stage.setTitle("Calculator");
+        stage.initStyle(StageStyle.DECORATED);
         stage.setResizable(false);
         stage.setScene(new Scene(createLayout(screen, buttons)));
         stage.show();
 
     }
 
+    private TextField createScreen() {
+        final TextField screen = new TextField();
+        screen.setStyle("-fx-background-color: \tSKYBLUE;");
+        screen.setAlignment(Pos.CENTER_RIGHT);
+        screen.setEditable(false);
+        screen.textProperty().bind(Bindings.format("%.0f", value));
+        return screen;
+    }
+
     private TilePane createButtons() {
         TilePane buttons = new TilePane();
-        buttons.setVgap(7);
-        buttons.setHgap(7);
+        buttons.setVgap(15);
+        buttons.setHgap(15);
         buttons.setPrefColumns(template[0].length);
         for (String[] r : template) {
             for (String s : r) {
@@ -67,6 +76,16 @@ public class Calc extends Application {
             }
         }
         return buttons;
+    }
+
+    private VBox createLayout(TextField screen,TilePane buttons){
+        final VBox layout = new VBox(25);
+        layout.setAlignment(Pos.CENTER);
+        layout.setStyle("-fx-background-color: darkcyan; -fx-padding: 15; -fx-font-size: 30");
+        layout.getChildren().setAll(screen, buttons);
+        handleAccelerators(layout);
+        screen.prefWidthProperty().bind(buttons.widthProperty());
+        return layout;
     }
 
     private Button createButton(final String s) {
@@ -87,15 +106,7 @@ public class Calc extends Application {
         return button;
     }
 
-    private VBox createLayout(TextField screen,TilePane buttons){
-        final VBox layout = new VBox(20);
-        layout.setAlignment(Pos.CENTER);
-        layout.setStyle("-fx-background-color: chocolate; -fx-padding: 20; -fx-font-size: 20");
-        layout.getChildren().setAll(screen, buttons);
-        handleAccelerators(layout);
-        screen.prefWidthProperty().bind(buttons.widthProperty());
-        return layout;
-    }
+
 
     private void handleAccelerators(VBox layout) {
         layout.addEventFilter(KeyEvent.KEY_PRESSED, keyEvent -> {
@@ -106,14 +117,6 @@ public class Calc extends Application {
         });
     }
 
-    private TextField createScreen() {
-        final TextField screen = new TextField();
-        screen.setStyle("-fx-background-color: aquamarine;");
-        screen.setAlignment(Pos.CENTER_RIGHT);
-        screen.setEditable(false);
-        screen.textProperty().bind(Bindings.format("%.0f", value));
-        return screen;
-    }
 
     private void makeOperandButton(Button button, final ObjectProperty<Op> triggerOp) {
         button.setStyle("-fx-base: lightgray;");
