@@ -7,7 +7,6 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
@@ -20,7 +19,7 @@ import javafx.stage.StageStyle;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Calc extends Application {
+public class Calculator extends Application {
 
     private static final String[][] template ={ // initializing digit string
             {"7","8","9","/"},
@@ -108,10 +107,10 @@ public class Calc extends Application {
     private void makeNumericButton(final String s, Button button) {
         button.setOnAction(actionEvent -> {
             if (curOp == Op.NOOP) {
-                value.set(value.get() * 10 + Integer.parseInt(s));
+                value.set(value.get() * 10 + Double.parseDouble(s));
             } else {
                 stackValue.set(value.get());
-                value.set(Integer.parseInt(s));
+                value.set(Double.parseDouble(s));
                 stackOp = curOp;
                 curOp = Op.NOOP;
             }
